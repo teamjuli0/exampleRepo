@@ -1,41 +1,29 @@
-// ==============================================================================
-// DEPENDENCIES
-// Series of npm packages that we will use to give our server useful functionality
-// ==============================================================================
+var express = require("express");
 
-var express = require('express')
+var PORT = process.env.PORT || 8080;
 
-// ==============================================================================
-// EXPRESS CONFIGURATION
-// This sets up the basic properties for our express server
-// ==============================================================================
+var app = express();
 
-// Tells node that we are creating an "express" server
-var app = express()
+// Serve static content for the app from the "public" directory in the application directory.
+app.use(express.static("public"));
 
-// Sets an initial port. We"ll use this later in our listener
-var PORT = process.env.PORT || 8080
+// Parse application body as JSON
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-// Sets up the Express app to handle data parsing
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
-app.use(express.static('public'))
+// Set Handlebars.
+var exphbs = require("express-handlebars");
 
-// ================================================================================
-// ROUTER
-// The below points our server to a series of "route" files.
-// These routes give our server a "map" of how to respond when users visit or request data from various URLs.
-// ================================================================================
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/public/index.html')
-})
+// Import routes and give the server access to them.
+var routes = require("./controllers/catsController.js");
 
-// =============================================================================
-// LISTENER
-// The below code effectively "starts" our server
-// =============================================================================
+app.use(routes);
 
-app.listen(PORT, function () {
-  console.log('App listening on PORT: ' + PORT)
-})
+// Start our server so that it can begin listening to client requests.
+app.listen(PORT, function() {
+  // Log (server-side) when our server has started
+  console.log("Server listening on: http://localhost:" + PORT);
+});
